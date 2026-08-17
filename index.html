@@ -6,203 +6,384 @@
     <title>徐程卓 · 大模型应用开发工程师</title>
     <style>
         :root {
-            --primary: #2563eb;
-            --primary-dark: #1e40af;
-            --text: #1f2937;
-            --text-light: #6b7280;
-            --bg: #f8fafc;
-            --card: #ffffff;
-            --border: #e5e7eb;
+            --bg: #0b0f1a;
+            --bg-soft: #111827;
+            --card: #161d2e;
+            --card-hover: #1c253a;
+            --border: #26304a;
+            --text: #e5e9f0;
+            --text-dim: #9aa4b8;
+            --accent: #6366f1;
+            --accent-2: #22d3ee;
+            --green: #34d399;
+            --radius: 16px;
         }
         * { margin: 0; padding: 0; box-sizing: border-box; }
+        html { scroll-behavior: smooth; }
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "PingFang SC", "Microsoft YaHei", sans-serif;
             background: var(--bg);
             color: var(--text);
-            line-height: 1.7;
+            line-height: 1.75;
+            overflow-x: hidden;
         }
-        .container { max-width: 860px; margin: 0 auto; padding: 48px 20px 80px; }
+        /* 背景光晕 */
+        .bg-glow {
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            z-index: 0;
+            background:
+                radial-gradient(600px 400px at 15% 10%, rgba(99,102,241,0.18), transparent 60%),
+                radial-gradient(500px 400px at 85% 20%, rgba(34,211,238,0.12), transparent 60%),
+                radial-gradient(700px 500px at 50% 100%, rgba(99,102,241,0.08), transparent 60%);
+        }
+        .container { position: relative; z-index: 1; max-width: 900px; margin: 0 auto; padding: 64px 24px 80px; }
 
         /* 头部 */
-        .header {
-            text-align: center;
-            margin-bottom: 48px;
+        .header { text-align: center; margin-bottom: 56px; }
+        .avatar-wrap { position: relative; display: inline-block; margin-bottom: 24px; }
+        .avatar-wrap::before {
+            content: '';
+            position: absolute;
+            inset: -6px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--accent), var(--accent-2));
+            padding: 3px;
+            -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            -webkit-mask-composite: xor;
+            mask-composite: exclude;
         }
         .profile-image {
-            width: 140px;
-            height: 140px;
+            width: 140px; height: 140px;
             border-radius: 50%;
             object-fit: cover;
-            border: 4px solid #fff;
-            box-shadow: 0 8px 24px rgba(0,0,0,0.12);
-            margin-bottom: 20px;
+            display: block;
         }
         .header h1 {
-            font-size: 34px;
-            font-weight: 700;
+            font-size: 40px;
+            font-weight: 800;
             letter-spacing: 1px;
-            margin-bottom: 6px;
+            background: linear-gradient(90deg, #fff, #c7d2fe);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 8px;
         }
         .header .title {
             font-size: 18px;
-            color: var(--primary);
+            color: var(--accent-2);
             font-weight: 600;
-            margin-bottom: 14px;
+            letter-spacing: 2px;
+            margin-bottom: 16px;
         }
         .header .contact {
             font-size: 14px;
-            color: var(--text-light);
+            color: var(--text-dim);
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 6px 18px;
         }
-        .header .contact span { margin: 0 8px; }
+        .header .contact a { color: var(--text-dim); text-decoration: none; transition: color .2s; }
+        .header .contact a:hover { color: var(--accent-2); }
 
-        /* 区块 */
-        .section {
+        /* 区块通用 */
+        .section { margin-bottom: 40px; }
+        .section-head { margin-bottom: 22px; }
+        .section-head h2 {
+            font-size: 24px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .section-head h2 .num {
+            font-family: "SF Mono", Consolas, monospace;
+            font-size: 15px;
+            color: var(--accent-2);
+            font-weight: 500;
+        }
+        .section-head .line {
+            flex: 1;
+            height: 1px;
+            background: linear-gradient(90deg, var(--border), transparent);
+        }
+
+        /* 关于我 */
+        .about-card {
             background: var(--card);
-            border-radius: 14px;
-            padding: 32px;
-            margin-bottom: 24px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 28px;
+            font-size: 15px;
+            color: #cbd5e1;
         }
-        .section h2 {
-            font-size: 22px;
-            margin-bottom: 18px;
-            padding-bottom: 12px;
-            border-bottom: 2px solid var(--border);
-            position: relative;
-        }
-        .section h2::after {
-            content: '';
-            position: absolute;
-            left: 0;
-            bottom: -2px;
-            width: 48px;
-            height: 2px;
-            background: var(--primary);
-        }
+        .about-card .highlight { color: var(--accent-2); font-weight: 600; }
 
-        /* 总结 */
-        .summary p { font-size: 15px; color: #374151; }
-
-        /* 技能 */
+        /* 技能分组 */
+        .skill-group { margin-bottom: 20px; }
+        .skill-group:last-child { margin-bottom: 0; }
+        .skill-group .group-label {
+            font-size: 13px;
+            color: var(--accent-2);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 10px;
+        }
         .skills { display: flex; flex-wrap: wrap; gap: 10px; }
         .skill-tag {
-            background: #eff6ff;
-            color: var(--primary-dark);
-            padding: 6px 14px;
-            border-radius: 20px;
-            font-size: 13px;
-        }
-
-        /* 项目 */
-        .project {
-            margin-bottom: 26px;
-            padding-bottom: 26px;
-            border-bottom: 1px solid var(--border);
-        }
-        .project:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
-        .project h3 {
-            font-size: 17px;
-            margin-bottom: 6px;
-            color: #111827;
-        }
-        .project .stack {
-            font-size: 12px;
-            color: var(--primary);
-            margin-bottom: 10px;
-            font-family: "SF Mono", Consolas, monospace;
-        }
-        .project .desc {
-            font-size: 14px;
-            color: #4b5563;
-            margin-bottom: 10px;
-        }
-        .project .result {
-            font-size: 13px;
-            color: #059669;
-            background: #ecfdf5;
-            padding: 8px 12px;
+            background: var(--card);
+            border: 1px solid var(--border);
+            color: var(--text);
+            padding: 7px 15px;
             border-radius: 8px;
+            font-size: 13px;
+            transition: all .2s;
+        }
+        .skill-tag:hover {
+            border-color: var(--accent);
+            color: var(--accent-2);
+            transform: translateY(-2px);
         }
 
-        /* 经历 */
-        .exp { margin-bottom: 20px; }
-        .exp .exp-header {
+        /* 工作经历 */
+        .exp-card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 26px;
+        }
+        .exp-card .exp-top {
             display: flex;
             justify-content: space-between;
             align-items: baseline;
-            margin-bottom: 4px;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 6px;
         }
-        .exp .company { font-size: 16px; font-weight: 600; }
-        .exp .role { font-size: 14px; color: var(--primary); }
-        .exp .time { font-size: 13px; color: var(--text-light); }
-        .exp ul { padding-left: 20px; }
-        .exp li { font-size: 14px; color: #4b5563; margin-bottom: 4px; }
+        .exp-card .company { font-size: 17px; font-weight: 700; }
+        .exp-card .time {
+            font-size: 13px;
+            color: var(--text-dim);
+            font-family: "SF Mono", Consolas, monospace;
+        }
+        .exp-card .role { font-size: 14px; color: var(--accent-2); margin-bottom: 14px; }
+        .exp-card ul { padding-left: 0; list-style: none; }
+        .exp-card li {
+            font-size: 14px;
+            color: #cbd5e1;
+            padding-left: 18px;
+            position: relative;
+            margin-bottom: 8px;
+        }
+        .exp-card li::before {
+            content: '▹';
+            position: absolute;
+            left: 0;
+            color: var(--accent);
+        }
+
+        /* 项目卡片 */
+        .project-card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 28px;
+            margin-bottom: 24px;
+            transition: all .25s;
+            position: relative;
+            overflow: hidden;
+        }
+        .project-card:hover {
+            border-color: var(--accent);
+            background: var(--card-hover);
+            transform: translateY(-3px);
+            box-shadow: 0 12px 32px rgba(0,0,0,0.35);
+        }
+        .project-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%; height: 3px;
+            background: linear-gradient(90deg, var(--accent), var(--accent-2));
+            opacity: 0;
+            transition: opacity .25s;
+        }
+        .project-card:hover::before { opacity: 1; }
+        .project-card .p-top {
+            display: flex;
+            align-items: baseline;
+            gap: 12px;
+            margin-bottom: 8px;
+        }
+        .project-card .p-index {
+            font-family: "SF Mono", Consolas, monospace;
+            font-size: 14px;
+            color: var(--accent-2);
+        }
+        .project-card h3 { font-size: 18px; font-weight: 700; }
+        .project-card .stack {
+            font-size: 12px;
+            color: var(--accent);
+            margin-bottom: 14px;
+            font-family: "SF Mono", Consolas, monospace;
+            line-height: 1.8;
+        }
+        .project-card .desc {
+            font-size: 14px;
+            color: #cbd5e1;
+            margin-bottom: 16px;
+        }
+        .project-card .duty-title {
+            font-size: 13px;
+            color: var(--text-dim);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 8px;
+        }
+        .project-card ul { list-style: none; margin-bottom: 16px; }
+        .project-card ul li {
+            font-size: 13.5px;
+            color: #b6c0d0;
+            padding-left: 16px;
+            position: relative;
+            margin-bottom: 6px;
+        }
+        .project-card ul li::before {
+            content: '·';
+            position: absolute;
+            left: 4px;
+            color: var(--accent);
+            font-weight: 700;
+        }
+        .project-card .result {
+            font-size: 13px;
+            color: var(--green);
+            background: rgba(52,211,153,0.08);
+            border: 1px solid rgba(52,211,153,0.2);
+            padding: 12px 16px;
+            border-radius: 10px;
+            line-height: 1.7;
+        }
 
         /* 教育 */
-        .edu { display: flex; justify-content: space-between; align-items: baseline; }
-        .edu .school { font-size: 16px; font-weight: 600; }
-        .edu .major { font-size: 14px; color: var(--text-light); }
-        .edu .time { font-size: 13px; color: var(--text-light); }
+        .edu-card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .edu-card .school { font-size: 17px; font-weight: 700; }
+        .edu-card .major { font-size: 14px; color: var(--text-dim); }
+        .edu-card .time { font-size: 13px; color: var(--text-dim); font-family: "SF Mono", Consolas, monospace; }
 
-        /* 页脚 */
         .footer {
             text-align: center;
-            margin-top: 40px;
+            margin-top: 48px;
             font-size: 13px;
-            color: var(--text-light);
+            color: var(--text-dim);
+        }
+
+        /* 动画 */
+        .reveal {
+            opacity: 0;
+            transform: translateY(24px);
+            transition: opacity .6s ease, transform .6s ease;
+        }
+        .reveal.visible { opacity: 1; transform: translateY(0); }
+
+        @media (max-width: 600px) {
+            .header h1 { font-size: 32px; }
+            .container { padding: 40px 16px 60px; }
         }
     </style>
 </head>
 <body>
+    <div class="bg-glow"></div>
     <div class="container">
         <div class="header">
-            <img src="images/profile-white.jpg" alt="徐程卓" class="profile-image">
+            <div class="avatar-wrap">
+                <img src="images/profile-white.jpg" alt="徐程卓" class="profile-image">
+            </div>
             <h1>徐程卓</h1>
             <div class="title">大模型应用开发工程师</div>
             <div class="contact">
-                📧 17771966458@163.com <span>·</span> 📱 17771966458 <span>·</span> 🎓 荆楚理工学院 · 智能科学与技术
+                <a href="mailto:17771966458@163.com">📧 17771966458@163.com</a>
+                <span>📱 17771966458</span>
+                <span>🎓 荆楚理工学院 · 智能科学与技术</span>
             </div>
         </div>
 
-        <div class="section">
-            <h2>关于我</h2>
-            <div class="summary">
-                <p>2 年大模型应用开发经验，专注 RAG 全链路、NL2SQL、多 Agent 协作系统方向。精通 LangGraph 多节点状态机编排与 RAG 检索优化（混合检索 + HyDE + Reranker 微调），主导多个 Agent 项目从 0 到 1 落地。具备 LLMOps（Ragas 评估 + Langfuse 追踪）闭环能力，能将 Agent 工程化为可私有部署、可压测的生产级系统。</p>
+        <div class="section reveal">
+            <div class="section-head">
+                <h2><span class="num">01</span> 关于我</h2>
+                <div class="line"></div>
+            </div>
+            <div class="about-card">
+                <p>2 年大模型应用开发经验，专注 <span class="highlight">RAG 全链路</span>、<span class="highlight">NL2SQL</span> 与 <span class="highlight">多 Agent 协作系统</span>方向。精通 LangGraph 多节点状态机编排与 RAG 检索优化（混合检索 + HyDE + Reranker 微调），主导多个 Agent 项目从 0 到 1 落地。具备 LLMOps（Ragas 评估 + Langfuse 追踪）闭环能力，能将 Agent 工程化为可私有部署、可压测的生产级系统。</p>
             </div>
         </div>
 
-        <div class="section">
-            <h2>核心技能</h2>
-            <div class="skills">
-                <span class="skill-tag">Python</span>
-                <span class="skill-tag">LangGraph</span>
-                <span class="skill-tag">LangChain</span>
-                <span class="skill-tag">RAG</span>
-                <span class="skill-tag">NL2SQL</span>
-                <span class="skill-tag">多 Agent 协作</span>
-                <span class="skill-tag">MinerU</span>
-                <span class="skill-tag">Milvus</span>
-                <span class="skill-tag">Qdrant</span>
-                <span class="skill-tag">Elasticsearch</span>
-                <span class="skill-tag">MySQL / PostgreSQL</span>
-                <span class="skill-tag">Neo4j</span>
-                <span class="skill-tag">Ragas</span>
-                <span class="skill-tag">LoRA 微调</span>
-                <span class="skill-tag">ReAct</span>
-                <span class="skill-tag">MCP</span>
-                <span class="skill-tag">FastAPI</span>
-                <span class="skill-tag">SSE / WebSocket</span>
-                <span class="skill-tag">Docker</span>
-                <span class="skill-tag">Git</span>
-                <span class="skill-tag">Coze / Dify</span>
-                <span class="skill-tag">DeepAgents</span>
+        <div class="section reveal">
+            <div class="section-head">
+                <h2><span class="num">02</span> 核心技能</h2>
+                <div class="line"></div>
+            </div>
+            <div class="skill-group">
+                <div class="group-label">Agent 编排与框架</div>
+                <div class="skills">
+                    <span class="skill-tag">LangGraph</span>
+                    <span class="skill-tag">LangChain</span>
+                    <span class="skill-tag">DeepAgents</span>
+                    <span class="skill-tag">ReAct</span>
+                    <span class="skill-tag">MCP</span>
+                    <span class="skill-tag">Function Calling</span>
+                    <span class="skill-tag">Coze / Dify</span>
+                </div>
+            </div>
+            <div class="skill-group">
+                <div class="group-label">RAG 与检索</div>
+                <div class="skills">
+                    <span class="skill-tag">RAG</span>
+                    <span class="skill-tag">MinerU</span>
+                    <span class="skill-tag">Milvus</span>
+                    <span class="skill-tag">Qdrant</span>
+                    <span class="skill-tag">Elasticsearch</span>
+                    <span class="skill-tag">Neo4j</span>
+                    <span class="skill-tag">BGE-M3 / Reranker</span>
+                    <span class="skill-tag">HyDE</span>
+                    <span class="skill-tag">Ragas</span>
+                </div>
+            </div>
+            <div class="skill-group">
+                <div class="group-label">工程与部署</div>
+                <div class="skills">
+                    <span class="skill-tag">Python</span>
+                    <span class="skill-tag">FastAPI</span>
+                    <span class="skill-tag">SSE / WebSocket</span>
+                    <span class="skill-tag">MySQL / PostgreSQL</span>
+                    <span class="skill-tag">Redis</span>
+                    <span class="skill-tag">Docker</span>
+                    <span class="skill-tag">Git</span>
+                    <span class="skill-tag">LoRA 微调</span>
+                    <span class="skill-tag">vLLM</span>
+                </div>
             </div>
         </div>
 
-        <div class="section">
-            <h2>工作经历</h2>
-            <div class="exp">
-                <div class="exp-header">
+        <div class="section reveal">
+            <div class="section-head">
+                <h2><span class="num">03</span> 工作经历</h2>
+                <div class="line"></div>
+            </div>
+            <div class="exp-card">
+                <div class="exp-top">
                     <span class="company">武汉一格空间科技有限公司 · 研发部</span>
                     <span class="time">2024.06 – 2026.06</span>
                 </div>
@@ -216,48 +397,106 @@
             </div>
         </div>
 
-        <div class="section">
-            <h2>项目经历</h2>
-
-            <div class="project">
-                <h3>智库 — 基于 LoRA 微调的多模态 Graph RAG 知识库</h3>
-                <div class="stack">LangGraph · LangChain · Milvus · Ragas · Qwen3.5 · FastAPI · BGE-M3 · Neo4j · MCP</div>
-                <div class="desc">面向公司内部文档查阅场景，构建多模态 RAG 知识库，实现内部资料统一检索与智能问答，提升研发测试效率。</div>
-                <div class="result">1000+ 份资料解析入库 · Recall@5 达 88% · 多跳问题准确率 62% → 78%</div>
+        <div class="section reveal">
+            <div class="section-head">
+                <h2><span class="num">04</span> 项目经历</h2>
+                <div class="line"></div>
             </div>
 
-            <div class="project">
-                <h3>超级智数 — 基于多 Agent 的归因分析平台</h3>
-                <div class="stack">DeepAgents · LangGraph · FastAPI · Qwen3 · Function Calling · MCP · PostgreSQL · Redis · Docker</div>
-                <div class="desc">搭建自主归因并输出可视化报告的平台，将数据分析师数天的归因工作缩短至分钟级。</div>
-                <div class="result">结论与人工一致率 79% · 输入 token 10万+ → 5万 · 报告平均耗时 10 分钟</div>
+            <div class="project-card">
+                <div class="p-top">
+                    <span class="p-index">01</span>
+                    <h3>智库 — 基于 LoRA 微调的多模态 Graph RAG 知识库</h3>
+                </div>
+                <div class="stack">LangGraph · LangChain · Milvus · Ragas · Qwen3.5 · FastAPI · BGE-M3 · BGE-reranker-large · MinIO · MinerU · Neo4j · SSE · MCP</div>
+                <div class="desc">面向公司内部文档查阅场景，针对大量设备资料分散存放、人工查阅效率低的问题，构建多模态 RAG 知识库，实现内部资料的统一检索与智能问答。</div>
+                <div class="duty-title">主要职责</div>
+                <ul>
+                    <li>非结构化文档处理：选用 MinerU 解析，非扫描件原生提取，扫描件/图文 PDF 自动切换 OCR，表格转 HTML 再转带表头数据。</li>
+                    <li>智能解析入库：图片上传 MinIO 并由 Qwen3.5-VL 生成语义描述；多策略切片后用 BGE-M3 生成稠密+稀疏混合向量入库 Milvus，实体关系入 Neo4j。</li>
+                    <li>查询改写与多跳处理：扩展改写问题、对齐实体名称、自动拆解多跳任务并行执行，反思校验后 SSE 流式输出。</li>
+                    <li>多路检索优化：混合检索 + HyDE + 图谱召回 + MCP 联网兜底，RRF 粗筛 + Reranker 精筛 + 断崖检测取 Top-K。</li>
+                    <li>重排器微调：基于 BGE-reranker-large 做 LoRA 微调，冻结主参数仅训低秩适配器，样本约 1 万条。</li>
+                    <li>RAG 评估：引入 Ragas 做检索阶段（召回率/准确率）与生成阶段（忠实度/相关性/准确率）评估。</li>
+                </ul>
+                <div class="result">1000+ 份无人机资料解析入库 · Recall@5 达 88% · 生成忠实度 85% · 多跳问题准确率 62% → 78%</div>
             </div>
 
-            <div class="project">
-                <h3>智数 — 基于 NL2SQL 的账目管家</h3>
-                <div class="stack">LangGraph · Qdrant · Elasticsearch · IK Analyzer · BGE-large-zh · jieba · Qwen2.5</div>
-                <div class="desc">搭建 NL2SQL 问答系统，让业务人员通过对话直接查询数据，降低取数门槛。</div>
-                <div class="result">67 张表 / 913 字段 / 128 指标 · 字段 Recall@10 85% · 取数效率提升 10 倍</div>
+            <div class="project-card">
+                <div class="p-top">
+                    <span class="p-index">02</span>
+                    <h3>超级智数 — 基于多 Agent 的归因分析平台</h3>
+                </div>
+                <div class="stack">DeepAgents · LangGraph · FastAPI · Qwen3 · Prompt Engineering · Function Calling · MCP · PostgreSQL · Redis · MinIO · Docker · Nginx · JWT · Pandas · ECharts</div>
+                <div class="desc">指标变动时数据分析师需梳理原因、手写 SQL、归因并输出报表，通常耗时数天。搭建自主归因并输出可视化报告的平台，极大提升效率。</div>
+                <div class="duty-title">主要职责</div>
+                <ul>
+                    <li>多智能体编排：基于 DeepAgents 主从模式，主 Agent 调度子 Agent 递归分析，汇总后可视化输出。</li>
+                    <li>上下文管理与中间件：分层上下文模型 + 可插拔中间件，动态组装最小必要信息，输出后压缩存储，Redis 缓存历史结论降本。</li>
+                    <li>提示词工程：子 Agent Skill 写死递归逻辑与停止条件（边际收益 &lt;5%、缺数 &gt;30% 即停），主 Agent Skill 写调度与可视化指令，换场景只改配置。</li>
+                    <li>工具挂载与解耦：主 Agent 挂可视化/查询工具，子 Agent 只挂查询工具，Skill 与工具解耦，扩展维护干净。</li>
+                </ul>
+                <div class="result">50 个历史任务与人工结论一致率 79% · 输入 token 10万+ → 5万 · 自动生成 HTML 报告平均耗时 10 分钟</div>
             </div>
 
-            <div class="project">
-                <h3>数字人 HR 助手</h3>
-                <div class="stack">FastAPI · LangChain · WebSocket · DeepSeek · Docker · YAML · 魔珐星云数字人</div>
-                <div class="desc">以对话方式自助完成入职、请假、离职等 HR 流程办理与政策问答。</div>
-                <div class="result">事务办理 2 天 → 2 小时 · 重复咨询量降低 70% · 流程迭代 3 天 → 1 天</div>
+            <div class="project-card">
+                <div class="p-top">
+                    <span class="p-index">03</span>
+                    <h3>智数 — 基于 NL2SQL 的账目管家</h3>
+                </div>
+                <div class="stack">LangGraph · Qdrant · Elasticsearch · IK Analyzer · SQLAlchemy · BGE-large-zh · jieba · Qwen2.5</div>
+                <div class="desc">企业数仓复杂 SQL 查询耗时数小时甚至数天。搭建 NL2SQL 问答系统，自动完成语义理解、字段召回、SQL 生成与检验，让业务人员通过对话查数据。</div>
+                <div class="duty-title">主要职责</div>
+                <ul>
+                    <li>智能体编排：基于 LangGraph 搭建 DAG 工作流，跑通「提取关键字 → 多路召回 → 数据整合 → 过滤 → SQL 生成 → 校验 → 执行」全链路。</li>
+                    <li>元知识库构建：字段名/指标名/描述/别名用 BGE-large-zh 向量化入 Qdrant，字段值入 ES 倒排索引并配置 IK Analyzer。</li>
+                    <li>多路召回：jieba 分词后按信息特性优化，Qdrant 召回字段指标按 id 去重，ES 召回具体字段值。</li>
+                    <li>数据补全与过滤：按表名整合字段指标，补主外键，Qwen3.5 识别剔除冗余，补充数据库信息与日期。</li>
+                    <li>SQL 生成与检验：Qwen2.5 生成 SQL，MySQL EXPLAIN 校验，失败信息回传 LLM 重新生成并设兜底防死循环。</li>
+                </ul>
+                <div class="result">67 张表 / 913 字段 / 128 指标 / 18.6 万字段值 · 字段 Recall@10 85% · 自修正后 SQL 可执行率 88% · 取数效率提升 10 倍</div>
             </div>
 
-            <div class="project">
-                <h3>AI 视频生成助手</h3>
-                <div class="stack">Coze · Workflow · Seedance 1.5 · Doubao-1.5pro · Prompt Engineering</div>
-                <div class="desc">设计"输入 → 剧本 → 画面 → 视频 → 交付"标准化流水线，实现文本到演示视频的端到端自动化。</div>
-                <div class="result">视频制作 3 天 → 30 分钟 · 覆盖 80% 业务团队 · 累计生成 1000+ 条</div>
+            <div class="project-card">
+                <div class="p-top">
+                    <span class="p-index">04</span>
+                    <h3>数字人 HR 助手</h3>
+                </div>
+                <div class="stack">FastAPI · LangChain · SQLAlchemy · WebSocket · httpx · DeepSeek · Docker · YAML · 魔珐星云数字人</div>
+                <div class="desc">面向企业内部员工，以对话方式自助完成入职、宿舍申请、请假、离职等 HR 流程办理与政策问答，解决传统窗口响应慢、口语化理解难的问题。</div>
+                <div class="duty-title">主要职责</div>
+                <ul>
+                    <li>三轨道路由与意图澄清：结合上下文调用 DeepSeek，按「制度咨询 / 流程办理 / 紧急求助」三轨道匹配意图并做合法性校验，模糊时自动澄清追问。</li>
+                    <li>YAML 驱动流程引擎：将 HR 流程抽象为 YAML 配置，业务 HR 可直接阅读修改，零开发迭代。</li>
+                    <li>双层循环架构：外层控制器定位当前 Action，内层 ActionRunner 动态加载执行，状态可追踪。</li>
+                    <li>WebSocket 流式通信与数字人集成：双向实时推送进度与异常，对接魔珐星云数字人以虚拟 HR 形象语音引导。</li>
+                </ul>
+                <div class="result">事务办理 2 天 → 2 小时 · 重复咨询量降低 70% · 流程调整周期 3 天 → 1 天</div>
+            </div>
+
+            <div class="project-card">
+                <div class="p-top">
+                    <span class="p-index">05</span>
+                    <h3>AI 视频生成助手</h3>
+                </div>
+                <div class="stack">Coze · Workflow 编排 · Seedance 1.5 · Doubao-1.5pro · Prompt Engineering</div>
+                <div class="desc">面向员工培训、方案汇报、营销宣传场景视频制作门槛高的痛点，设计「输入 → 剧本 → 画面 → 视频 → 交付」标准化流水线，实现文本到演示视频的端到端自动化。</div>
+                <div class="duty-title">主要职责</div>
+                <ul>
+                    <li>Workflow 设计：基于 Coze 搭建线性工作流，拆解为「需求承接 / 剧本优化 / 图片生成 / 视频合成 / 结果输出」五个原子节点，模块化可复用。</li>
+                    <li>提示词设计与优化：剧本优化节点嵌入结构化提示词，强制 Doubao-1.5pro 输出含画面描述、运镜指令、时长标注的分镜脚本。</li>
+                    <li>视频生成策略：集成 Seedance 1.5，以「图生视频」替代「文生视频」，解决画面闪烁与主体不一致问题。</li>
+                </ul>
+                <div class="result">单条视频 3 天 → 30 分钟 · 覆盖 80% 业务团队 · 累计生成演示视频 1000+ 条</div>
             </div>
         </div>
 
-        <div class="section">
-            <h2>教育经历</h2>
-            <div class="edu">
+        <div class="section reveal">
+            <div class="section-head">
+                <h2><span class="num">05</span> 教育经历</h2>
+                <div class="line"></div>
+            </div>
+            <div class="edu-card">
                 <div>
                     <div class="school">荆楚理工学院</div>
                     <div class="major">智能科学与技术 · 本科</div>
@@ -270,5 +509,17 @@
             © 2026 徐程卓 · 大模型应用开发工程师
         </div>
     </div>
+
+    <script>
+        // 滚动揭示动画
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                }
+            });
+        }, { threshold: 0.1 });
+        document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+    </script>
 </body>
 </html>
