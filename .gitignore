@@ -1,0 +1,6 @@
+# 排除临时文件
+replace_bg.py
+images/profile.jpg
+images/profile-thumb.jpg
+__pycache__/
+*.pyc
